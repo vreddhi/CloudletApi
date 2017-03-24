@@ -1,0 +1,7 @@
+[DEFAULT]
+
+[CREDENTIALS]
+client_token = akab-5u5pl7ac4o2tzfl7-7ovniqaoaang5yil
+client_secret = iaYzs6iVliEpahvN3dFuEX21aThQ8FoGL28fUYKV/vc=
+access_token = akab-jejgtp67msofh3gg-ufkamnobdowx2o4u
+access_hostname = akab-tudd7bitddogwod2-lgul7a67ms432hff.luna.akamaiapis.net
