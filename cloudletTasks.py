@@ -34,12 +34,14 @@ parser = argparse.ArgumentParser()
 parser.add_argument("-getGroups","--getGroups",help="Get all cloudlet Groups",action="store_true")
 parser.add_argument("-getAllGroupIds","--getAllGroupIds",help="Get all cloudlet Group Ids",action="store_true")
 parser.add_argument("-listAllCloudlets","--listAllCloudlets",help="Get all cloudlet Group Ids",action="store_true")
+parser.add_argument("-listAllPolicies","--listAllPolicies",help="List all cloudlet policies",action="store_true")
+parser.add_argument("-getVPPolicyDetails","--getVPPolicyDetails",help="List all VP cloudlet policies",action="store_true")
 
 
 args = parser.parse_args()
 
 
-if not args.getGroups and not args.getAllGroupIds and not args.listAllCloudlets:
+if not args.getGroups and not args.getAllGroupIds and not args.listAllCloudlets and not args.listAllPolicies and not args.getVPPolicyDetails:
     print("\nUse -h to know the options to run program\n")
     exit()
 
@@ -47,7 +49,12 @@ if not args.getGroups and not args.getAllGroupIds and not args.listAllCloudlets:
 if args.getGroups:
     cloudletObject = cloudlet(access_hostname)
     cloudletGroupResponse = cloudletObject.listCloudletGroups(session)
-    print(cloudletGroupResponse)
+    #print(json.dumps(cloudletGroupResponse.json()))
+    count = 1
+    for everyGroup in cloudletGroupResponse.json():
+        print(str(count) + '. ' + 'Name: ' + everyGroup['groupName'] + ' ID: ' + str(everyGroup['groupId']))
+        count += 1
+
 
 
 if args.getAllGroupIds:
@@ -59,3 +66,50 @@ if args.listAllCloudlets:
     cloudletObject = cloudlet(access_hostname)
     cloudletList = cloudletObject.listAllCloudlets(session)
     print(json.dumps(cloudletList))
+
+if args.listAllPolicies:
+    cloudletObject = cloudlet(access_hostname)
+    print('Fetching all cloudlet Groups..')
+    cloudletGroupResponse = cloudletObject.listCloudletGroups(session)
+    print('Fetching policies for each group..')
+    for everyGroup in cloudletGroupResponse.json():
+        for everyCloudletGroup in everyGroup['capabilities']:
+            cloudletId = everyCloudletGroup['cloudletId']
+            groupId = everyGroup['groupId']
+            cloudletPolicies = cloudletObject.listPolicies(session, groupId, cloudletId)
+            if cloudletPolicies.status_code == 200:
+                print('\nPolicy details for cloudletId: ' + str(cloudletId) + ' and groupId: ' + str(groupId) + ' is below:')
+                print(json.dumps(cloudletPolicies.json()))
+            else:
+                print('\ncloudletId: ' + str(cloudletId) + ' and groupId: ' + str(groupId) + ' did not get any policy details')
+
+if args.getVPPolicyDetails:
+    cloudletObject = cloudlet(access_hostname)
+    print('Fetching all cloudlet Groups..')
+    cloudletGroupResponse = cloudletObject.listCloudletGroups(session)
+    print('Fetching policies for each group..')
+    for everyGroup in cloudletGroupResponse.json():
+        groupId = everyGroup['groupId']
+        cloudletPolicies = cloudletObject.listPolicies(session=session, groupId=groupId, cloudletCode='VP')
+        if cloudletPolicies.status_code == 200:
+            print('\nPolicy details are groupId: ' + str(groupId) )
+            if 'vp_stage_www' in json.dumps(cloudletPolicies.json()):
+                break
+        else:
+            print('groupId: ' + str(groupId) + ' has no VP Policies')
+    for everyCloudletGroupInformation in cloudletPolicies.json():
+        if everyCloudletGroupInformation['name'] == 'vp_stage_www':
+            cloudletJsonInfo = everyCloudletGroupInformation
+            print(json.dumps(cloudletJsonInfo))
+    policyDetails = cloudletObject.getCloudletPolicy(session, cloudletJsonInfo['policyId'])
+    print('\n\npolicyDetails: ' + json.dumps(policyDetails.json()))
+
+
+
+
+
+
+
+
+
+print('*************DONE************')
