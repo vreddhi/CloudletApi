@@ -74,14 +74,15 @@ class cloudlet(object):
             listAllCloudletsResponse = session.get(listAllCloudletsUrl)
             if listAllCloudletsResponse.status_code == 200:
                 cloudletList.append(listAllCloudletsResponse.json())
+                print(json.dumps(listAllCloudletsResponse.json()))
                 print('Added cloudlet info for Group: ' + str(everyGroupId) + ' to a list\n')
             else:
                 print('Group: ' + str(everyGroupId) + ' did not yield any cloudlets\n')
         return cloudletList
 
-    def getCloudletIdFromName(self,session,cloudlet_name):
+    def listPolicies(self,session,groupId,cloudletId='optional',cloudletCode='optional'):
         """
-        Function to fetch cloudletId from cloudlet name
+        Function to fetch Policies from cloudletId and GroupId
 
         Parameters
         -----------
@@ -90,7 +91,31 @@ class cloudlet(object):
 
         Returns
         -------
-        cloudletId : integer
-            cloudletId of the cloudlet_name passed to function
+        policiesResponse : policiesResponse
+            Policies of cloudlet Id
         """
-        cloudletsList = self.listAllCloudlets
+        if cloudletCode == 'optional':
+            policiesUrl = 'https://' + self.access_hostname + '/cloudlets/api/v2/policies?gid=' + str(groupId) + '&includeDeleted=false&cloudletId=' + str(cloudletId)
+            policiesResponse = session.get(policiesUrl)
+        elif cloudletCode == 'VP':
+            policiesUrl = 'https://' + self.access_hostname + '/cloudlets/api/v2/policies?gid=' + str(groupId) + '&includeDeleted=false&cloudletId=' + str(1)
+            policiesResponse = session.get(policiesUrl)
+        return policiesResponse
+
+    def getCloudletPolicy(self,session,policyId):
+        """
+        Function to fetch a cloudelt policy detail
+
+        Parameters
+        -----------
+        session : <string>
+            An EdgeGrid Auth akamai session object
+
+        Returns
+        -------
+        cloudletPolicyResponse : cloudletPolicyResponse
+            Json object details of specific cloudlet policy
+        """
+        cloudletPolicyUrl = 'https://' + self.access_hostname + '/cloudlets/api/v2/policies/'+ str(policyId)
+        cloudletPolicyResponse = session.get(cloudletPolicyUrl)
+        return cloudletPolicyResponse
