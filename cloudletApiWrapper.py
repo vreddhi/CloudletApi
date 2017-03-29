@@ -119,3 +119,22 @@ class cloudlet(object):
         cloudletPolicyUrl = 'https://' + self.access_hostname + '/cloudlets/api/v2/policies/'+ str(policyId)
         cloudletPolicyResponse = session.get(cloudletPolicyUrl)
         return cloudletPolicyResponse
+
+    def listPolicyVersions(self,session,policyId):
+        """
+        Function to fetch a cloudelt policy versions
+
+        Parameters
+        -----------
+        session : <string>
+            An EdgeGrid Auth akamai session object
+
+        Returns
+        -------
+        cloudletPolicyResponse : cloudletPolicyResponse
+            Json object details of specific cloudlet policy versions
+        """
+        cloudletPolicyVersionsUrl = 'https://' + self.access_hostname + '/cloudlets/api/v2/policies/'+ str(policyId) + '/versions?includeRules=true'
+        cloudletPolicyVersionsResponse = session.get(cloudletPolicyVersionsUrl)
+        return cloudletPolicyVersionsResponse
+    
