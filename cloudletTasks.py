@@ -15,7 +15,7 @@ import requests
 
 try:
     config = configparser.ConfigParser()
-    config.read('config_BBY.txt')
+    config.read('config.txt')
     client_token = config['CREDENTIALS']['client_token']
     client_secret = config['CREDENTIALS']['client_secret']
     access_token = config['CREDENTIALS']['access_token']
