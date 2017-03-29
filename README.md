@@ -22,6 +22,9 @@ Command to get all Cloudlets in the account:
 Command to get all Cloudlet Policies under account:
 <b>python3 cloudletTasks.py --listAllPolicies </b>
 
+Command to get all VP Cloudlet Policies under account:
+<b>python3 cloudletTasks.py --getVPPolicyDetails </b>
+
 Command to get all version details of a policy:
 <b>python3 cloudletTasks.py --listPolicyVersions <policy_name> </b>
 
