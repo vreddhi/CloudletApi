@@ -10,7 +10,7 @@ API wrapper for cloudlets
 
 <hr></hr>
 <p>
-Command to information about all Groups:
+Command to get information about all Groups:
 <b>python3 cloudletTasks.py --getGroups </b>
 
 Command to get all Group IDs as a list:
