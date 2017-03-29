@@ -36,12 +36,15 @@ parser.add_argument("-getAllGroupIds","--getAllGroupIds",help="Get all cloudlet 
 parser.add_argument("-listAllCloudlets","--listAllCloudlets",help="Get all cloudlet Group Ids",action="store_true")
 parser.add_argument("-listAllPolicies","--listAllPolicies",help="List all cloudlet policies",action="store_true")
 parser.add_argument("-getVPPolicyDetails","--getVPPolicyDetails",help="List all VP cloudlet policies",action="store_true")
+parser.add_argument("-listPolicyVersions","--listPolicyVersions",help="List all versions of cloudlet policy")
+
 
 
 args = parser.parse_args()
 
 
-if not args.getGroups and not args.getAllGroupIds and not args.listAllCloudlets and not args.listAllPolicies and not args.getVPPolicyDetails:
+if not args.getGroups and not args.getAllGroupIds and not args.listAllCloudlets and not args.listAllPolicies and not args.getVPPolicyDetails \
+and not args.listPolicyVersions:
     print("\nUse -h to know the options to run program\n")
     exit()
 
@@ -104,7 +107,35 @@ if args.getVPPolicyDetails:
     policyDetails = cloudletObject.getCloudletPolicy(session, cloudletJsonInfo['policyId'])
     print('\n\npolicyDetails: ' + json.dumps(policyDetails.json()))
 
-
+if args.listPolicyVersions:
+    policyName = args.listPolicyVersions
+    cloudletObject = cloudlet(access_hostname)
+    print('Fetching all cloudlet Groups..')
+    cloudletGroupResponse = cloudletObject.listCloudletGroups(session)
+    print('Fetching policies for each group..')
+    for everyGroup in cloudletGroupResponse.json():
+        groupId = everyGroup['groupId']
+        cloudletPolicies = cloudletObject.listPolicies(session=session, groupId=groupId, cloudletCode='VP')
+        if cloudletPolicies.status_code == 200:
+            if policyName in json.dumps(cloudletPolicies.json()):
+                break
+        else:
+            print('groupId: ' + str(groupId) + ' has no VP Policies')
+    for everyCloudletGroupInformation in cloudletPolicies.json():
+        if everyCloudletGroupInformation['name'] == policyName:
+            print('Found the policy ' + policyName + '...\n')
+            cloudletJsonInfo = everyCloudletGroupInformation
+    policyVersionsDetails = cloudletObject.listPolicyVersions(session, cloudletJsonInfo['policyId'])
+    #print('\n\npolicyDetails: ' + json.dumps(policyVersionsDetails.json()))
+    if policyVersionsDetails.status_code == 200:
+        for everyVersion in policyVersionsDetails.json():
+            print('\nVersion: ' + str(everyVersion['version']))
+            print('Created By: ' + everyVersion['createdBy'])
+            print('Description: ' + everyVersion['description'])
+            if 'matchRules' in everyVersion and everyVersion['matchRules'] is not None:
+                for everyVersionsMatchRule in everyVersion['matchRules']:
+                    if 'disabled' not in everyVersionsMatchRule:
+                        print('Rule Name: ' + everyVersionsMatchRule['name'] + '   Percentage: ' + str(everyVersionsMatchRule['passThroughPercent']))
 
 
 
